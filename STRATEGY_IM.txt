@@ -1,0 +1,102 @@
+//@version=5
+indicator("Stable Scalping Arrows [With Dashboard v1]", overlay=true)
+
+// === SETTINGS ===
+emaShort = ta.ema(close, 5)
+vwap = ta.vwap
+macdLine = ta.ema(close, 12) - ta.ema(close, 26)
+macdSignal = ta.ema(macdLine, 9)
+atr = ta.atr(10)
+supertrendFactor = 3.0
+upperband = (high + low)/2 + supertrendFactor * atr
+lowerband = (high + low)/2 - supertrendFactor * atr
+
+// === TREND DETECTION ===
+var int trend = 1
+trend := close > lowerband[1] ? 1 : close < upperband[1] ? -1 : trend[1]
+
+// === ENTRY CONDITIONS ===
+buySignal  = ta.crossover(macdLine, macdSignal) and close > emaShort and trend == 1
+sellSignal = ta.crossunder(macdLine, macdSignal) and close < emaShort and trend == -1
+
+// === TRADE STATE ===
+var float buyPrice = na
+var int   buyBar   = na
+var float sellPrice = na
+var int   sellBar   = na
+
+if buySignal
+    buyPrice := close
+    buyBar := bar_index
+if sellSignal
+    sellPrice := close
+    sellBar := bar_index
+
+// === SL/TP SETTINGS ===
+slPerc = 0.3
+tpPerc = 0.6
+
+buyTP = buyPrice * (1 + tpPerc / 100)
+buySL = buyPrice * (1 - slPerc / 100)
+sellTP = sellPrice * (1 - tpPerc / 100)
+sellSL = sellPrice * (1 + slPerc / 100)
+
+// === EXIT CONDITIONS ===
+exitBuy  = not na(buyPrice) and (ta.crossunder(macdLine, macdSignal) or close < buySL or close > buyTP)
+exitSell = not na(sellPrice) and (ta.crossover(macdLine, macdSignal) or close > sellSL or close < sellTP)
+
+if exitBuy
+    buyPrice := na
+    buyBar := na
+if exitSell
+    sellPrice := na
+    sellBar := na
+
+// === FALSE BREAKOUTS ===
+buyFalseBreakout = not na(buyBar) and close < buySL and (bar_index - buyBar) <= 5
+sellFalseBreakout = not na(sellBar) and close > sellSL and (bar_index - sellBar) <= 5
+
+// === PLOTS ===
+plotshape(buySignal, title="Buy Entry", location=location.belowbar, color=color.green, style=shape.triangleup, size=size.small)
+plotshape(sellSignal, title="Sell Entry", location=location.abovebar, color=color.red, style=shape.triangledown, size=size.small)
+plotshape(exitBuy, title="Exit Buy", location=location.abovebar, color=color.orange, style=shape.xcross, size=size.tiny)
+plotshape(exitSell, title="Exit Sell", location=location.belowbar, color=color.orange, style=shape.xcross, size=size.tiny)
+plot(not na(buyPrice)  ? buyTP  : na, title="Buy TP",  color=color.green, style=plot.style_circles, linewidth=1)
+plot(not na(buyPrice)  ? buySL  : na, title="Buy SL",  color=color.red, style=plot.style_circles, linewidth=1)
+plot(not na(sellPrice) ? sellTP : na, title="Sell TP", color=color.green, style=plot.style_circles, linewidth=1)
+plot(not na(sellPrice) ? sellSL : na, title="Sell SL", color=color.red, style=plot.style_circles, linewidth=1)
+plotshape(buyFalseBreakout,  title="False Breakout Buy", location=location.belowbar, color=color.fuchsia, style=shape.square, size=size.small)
+plotshape(sellFalseBreakout, title="False Breakout Sell", location=location.abovebar, color=color.fuchsia, style=shape.square, size=size.small)
+
+// === ALERTS ===
+alertcondition(buySignal, title="Buy Entry Alert", message="BUY ENTRY")
+alertcondition(sellSignal, title="Sell Entry Alert", message="SELL ENTRY")
+alertcondition(exitBuy, title="Exit Buy Alert", message="EXIT BUY")
+alertcondition(exitSell, title="Exit Sell Alert", message="EXIT SELL")
+alertcondition(buyFalseBreakout, title="False Breakout Buy Alert", message="FALSE BREAKOUT on BUY trade")
+alertcondition(sellFalseBreakout, title="False Breakout Sell Alert", message="FALSE BREAKOUT on SELL trade")
+
+// === DASHBOARD STATS ===
+var int wins = 0
+var int losses = 0
+var int total = 0
+
+if exitBuy
+    total += 1
+    wins += close > buyPrice ? 1 : 0
+    losses += close < buyPrice ? 1 : 0
+
+if exitSell
+    total += 1
+    wins += close < sellPrice ? 1 : 0
+    losses += close > sellPrice ? 1 : 0
+
+winRate = total > 0 ? (wins * 100) / total : na
+
+// === TABLE DASHBOARD ===
+var table dash = table.new(position.top_right, 1, 4, border_width=1)
+if bar_index % 5 == 0
+    table.cell(dash, 0, 0, "📊 Total Trades: " + str.tostring(total), bgcolor=color.gray, text_color=color.white)
+    table.cell(dash, 0, 1, "✅ Wins: " + str.tostring(wins), bgcolor=color.black, text_color=color.green)
+    table.cell(dash, 0, 2, "❌ Losses: " + str.tostring(losses), bgcolor=color.black, text_color=color.red)
+    table.cell(dash, 0, 3, "📈 Win Rate: " + str.tostring(winRate, "#.##") + "%", bgcolor=color.black, text_color=color.orange)
