@@ -1,0 +1,53 @@
+//@version=5
+strategy("UT Bot + EMA + RSI Strategy", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=100)
+
+// === INPUTS ===
+emaLength = input.int(200, "EMA Length")
+rsiPeriod = input.int(14, "RSI Period")
+rsiMin = input.int(45, "RSI Min")
+rsiMax = input.int(65, "RSI Max")
+atrPeriod = input.int(10, "ATR Period")
+atrMultiplier = input.float(1.5, "ATR Multiplier")
+
+// === UT BOT LOGIC ===
+// Based on QuantNomad’s UT Bot simplified version
+src = close
+atr = ta.atr(atrPeriod)
+upBand = src - atrMultiplier * atr
+dnBand = src + atrMultiplier * atr
+trendUp = 0.0
+trendDown = 0.0
+trendUp := na(trendUp[1]) ? upBand : (src[1] > trendUp[1] ? math.max(upBand, trendUp[1]) : upBand)
+trendDown := na(trendDown[1]) ? dnBand : (src[1] < trendDown[1] ? math.min(dnBand, trendDown[1]) : dnBand)
+trend = 0
+trend := nz(trend[1], 1)
+trend := src > trendDown[1] ? 1 : src < trendUp[1] ? -1 : trend[1]
+buySignal = trend == 1 and trend[1] == -1
+sellSignal = trend == -1 and trend[1] == 1
+
+// === EMA & RSI ===
+ema = ta.ema(close, emaLength)
+rsi = ta.rsi(close, rsiPeriod)
+
+// === FINAL CONDITIONS ===
+buyCondition = buySignal and close > ema and rsi >= rsiMin and rsi <= rsiMax
+sellCondition = sellSignal and close < ema and rsi >= 100 - rsiMax and rsi <= 100 - rsiMin
+
+// === PLOTTING ===
+plotshape(buyCondition, title="Buy", location=location.belowbar, color=color.green, style=shape.labelup, text="Buy")
+plotshape(sellCondition, title="Sell", location=location.abovebar, color=color.red, style=shape.labeldown, text="Sell")
+plot(ema, title="EMA 200", color=color.orange)
+
+// === STRATEGY EXECUTION ===
+slPoints = atrMultiplier * atr
+
+if buyCondition
+    strategy.entry("Buy", strategy.long)
+    strategy.exit("Exit Buy", from_entry="Buy", stop=close - slPoints, limit=close + slPoints * 1.5)
+
+if sellCondition
+    strategy.entry("Sell", strategy.short)
+    strategy.exit("Exit Sell", from_entry="Sell", stop=close + slPoints, limit=close - slPoints * 1.5)
+
+// === DEBUG INFO ===
+// label.new(bar_index, high, text="RSI: " + str.tostring(rsi))
