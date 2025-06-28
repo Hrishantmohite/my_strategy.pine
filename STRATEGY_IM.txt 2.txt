@@ -1,0 +1,35 @@
+//@version=5
+strategy("EMA Scalping Strategy (Trend-Only, No Sideways)", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=100)
+
+// === INPUTS ===
+emaFastLength = input.int(5, title="Fast EMA")
+emaMidLength = input.int(9, title="Mid EMA")
+emaSlowLength = input.int(21, title="Slow EMA")
+trendStrengthBars = input.int(10, title="Trend Strength Lookback")
+
+// === CALCULATIONS ===
+emaFast = ta.ema(close, emaFastLength)
+emaMid = ta.ema(close, emaMidLength)
+emaSlow = ta.ema(close, emaSlowLength)
+
+// === TREND CONFIRMATION ===
+strongUptrend = emaFast > emaMid and emaMid > emaSlow and ta.lowest(close, trendStrengthBars) > emaSlow
+strongDowntrend = emaFast < emaMid and emaMid < emaSlow and ta.highest(close, trendStrengthBars) < emaSlow
+
+// === ENTRY CONDITIONS ===
+buySignal = strongUptrend and close > emaFast
+sellSignal = strongDowntrend and close < emaFast
+
+// === STRATEGY EXECUTION ===
+if (buySignal)
+    strategy.entry("Buy", strategy.long)
+if (sellSignal)
+    strategy.entry("Sell", strategy.short)
+
+// === PLOTTING ===
+plot(emaFast, title="EMA 5", color=color.orange)
+plot(emaMid, title="EMA 9", color=color.blue)
+plot(emaSlow, title="EMA 21", color=color.purple)
+
+plotshape(buySignal, title="Buy Signal", location=location.belowbar, color=color.green, style=shape.triangleup, size=size.small)
+plotshape(sellSignal, title="Sell Signal", location=location.abovebar, color=color.red, style=shape.triangledown, size=size.small)
