@@ -1,0 +1,6 @@
+| Market                 | ATR Length | ATR Mult | Volume Filter                      | Extra Tip                            |
+| ---------------------- | ---------- | -------- | ---------------------------------- | ------------------------------------ |
+| Indian Stocks          | 14         | 1.4      | Use delivery volume or tick volume | Avoid low-volume stocks              |
+| F\&O (Nifty/BankNifty) | 10–14      | 1.3–1.5  | Use Volume MA(20)                  | Avoid first 5 min of market open     |
+| Crypto                 | 10–14      | 1.3–1.5  | Must use Volume filter             | Works 24/7 — avoid during flat zones |
+| Forex                  | 14–21      | 1.4–1.7  | Use `volume` if broker supports    | Avoid Asian session if flat          |
