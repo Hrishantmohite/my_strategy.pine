@@ -1,0 +1,16 @@
+//@version=5
+indicator("BTC Buy/Sell Lines - 5Min Optimized", overlay=true)
+
+// === Best 5-Min Settings ===
+atrLength = input.int(14, title="ATR Length")
+atrMult = input.float(1.4, title="ATR Multiplier")
+source = input.source(close, title="Source")
+
+// === Buy/Sell Lines ===
+atr = ta.atr(atrLength)
+buyLine = source - atr * atrMult
+sellLine = source + atr * atrMult
+
+// === Plot ONLY Clean Lines ===
+plot(buyLine, title="Buy Line", color=color.green, linewidth=2)
+plot(sellLine, title="Sell Line", color=color.red, linewidth=2)
