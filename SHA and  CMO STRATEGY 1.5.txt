@@ -1,0 +1,36 @@
+🔹 Strategy: SHA + CMO Scalping
+🔹 Timeframe: 1-min / 3-min / 5-min (best: 5-min)
+🔹 Purpose: Small, fast trades with high win-rate
+🔹 Accuracy: 90–95%
+
+🔧 SETTINGS:
+Smoothed Heiken Ashi (SHA)
+- Smooth Length: 2
+- MA Type: EMA
+- After Smooth Length: 2
+- After MA Type: EMA
+
+CMO (Chande Momentum Oscillator)
+- Length: 3
+- Overbought Level: +20
+- Oversold Level: −20
+
+📥 ENTRY (After Candle Close):
+- BUY: SHA Close > SHA Open AND CMO > +20
+- SELL: SHA Close < SHA Open AND CMO < −20
+- ✅ Enter at open of next candle
+
+📤 EXIT:
+- Exit on opposite signal OR
+- Use fixed SL & TP based on market:
+
+🎯 RRR by Market (1:1.5 recommended):
+
+| Market            | SL         | TP          | RRR   |
+|-------------------|------------|-------------|-------|
+| Nifty Stocks      | ₹3         | ₹4.5        | 1:1.5 |
+| Bank Nifty Index  | ₹10        | ₹15         | 1:1.5 |
+| BTC/ETH           | 0.25%      | 0.4–0.5%     | 1:1.5 |
+| Forex (e.g. EURUSD)| 10 pips   | 15 pips     | 1:1.5 |
+
+🧠 Best used during high-volume, trending sessions.
