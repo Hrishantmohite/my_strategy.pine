@@ -1,0 +1,10 @@
+| Market              | **UT Bot ATR** | **UT Bot Key** | **ADX Length** | **ADX Threshold** | **Volume Filter**                 | Heikin Ashi |
+| ------------------- | -------------- | -------------- | -------------- | ----------------- | --------------------------------- | ----------- |
+| **BTC/USDT**        | `14`           | `2.0`          | `14`           | `> 22`            | Volume > 20-bar SMA               | ❌ Off       |
+| **Nifty 50**        | `10`           | `1.8`          | `10`           | `> 22`            | Volume > 20-bar SMA               | ❌ Off       |
+| **BankNifty**       | `14`           | `2.2`          | `10`           | `> 25`            | Volume > 20-bar SMA (very strict) | ✅ On        |
+| **ETH/USDT**        | `14`           | `1.9`          | `14`           | `> 22`            | Volume > 20-bar SMA               | ❌ Off       |
+| **Forex (EUR/USD)** | `10`           | `1.6`          | `14`           | `> 20`            | Volume > 20-bar SMA               | ✅ On        |
+| **Crude Oil**       | `10`           | `1.8`          | `14`           | `> 22`            | Volume > 20-bar SMA               | ❌ Off       |
+| **Gold (XAU/USD)**  | `10`           | `2.0`          | `14`           | `> 22`            | Volume > 20-bar SMA               | ✅ On        |
+| **NSE Stocks**      | `10`           | `1.8`          | `10`           | `> 20`            | Volume > 20-bar SMA               | ❌ Off       |
